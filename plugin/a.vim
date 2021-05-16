@@ -110,6 +110,9 @@ if (!exists('g:alternateSearchPath'))
   let g:alternateSearchPath = 'sfr:../source,sfr:../src,sfr:../include,sfr:../inc'
 endif
 
+if (!exists('g:selfConfigPartPath'))
+  let g:selfConfigPartPath= ''
+endif
 " If this variable is true then a.vim will not alternate to a file/buffer which
 " does not exist. E.g while editing a.c and the :A will not swtich to a.h
 " unless it exists.
@@ -127,7 +130,53 @@ if (!exists('g:alternateRelativeFiles'))
    let g:alternateRelativeFiles = 0
 endif
 
+function! GetSelfFile() 
+  let filePath = "" . expand("%:p:h")
+  let fileName = "" . expand("%:t:r")
+  let ext = "". expand("%:t:e")
+  let lst = split(filePath, "/")
+  let k = len(lst)
+  let cfp = g:selfConfigPartPath
+  let configPathTmp = split(cfp, ":")
+  let configPath = []
+  for tc in configPathTmp
+    if (tc == "")
+      continue
+    endif
 
+    call add(configPath, tc)
+  endfor
+
+  let cn = len(configPath)
+  let m = 0
+  for i in lst
+    let fp = "/".join(lst, "/")
+    let allfiles = EnumerateFilesByExtension(fp, fileName, ext)
+    let fileSet = split(allfiles, ",")
+
+    for j in fileSet
+      "if !empty(glob(j))
+      if (filereadable(j))
+        " let path = g:alternateSearchPath
+        " let g:alternateSearchPath = path.":".fp.",sfr"
+        " :echo g:alternateSearchPath
+        return j
+      endif
+    endfor
+
+    if (m < cn)
+      let lst[k-1] = configPath[m]
+      let m = m + 1
+      continue
+    endif
+
+    let k = k - 1
+    let m = 0
+    call remove(lst, k)
+  endfor
+
+  return ""
+endfunction
 " Function : GetNthItemFromList (PRIVATE)
 " Purpose  : Support reading items from a comma seperated list
 "            Used to iterate all the extensions in an extension spec
@@ -443,6 +492,12 @@ function! AlternateFile(splitWindow, ...)
   else
      let allfiles = ""
      if (extension != "")
+        let selfFile = GetSelfFile()
+        if (selfFile != "")
+          silent! call <SID>FindOrCreateBuffer(selfFile, a:splitWindow, 0)
+          return
+        endif
+
         let allfiles1 = EnumerateFilesByExtension(currentPath, baseName, extension)
         let allfiles2 = EnumerateFilesByExtensionInPath(baseName, extension, g:alternateSearchPath, currentPath)
 
@@ -629,11 +684,11 @@ function! NextAlternate(bang)
    endif
 endfunction
 
-comm! -nargs=? -bang A call AlternateFile("n<bang>", <f-args>)
-comm! -nargs=? -bang AS call AlternateFile("h<bang>", <f-args>)
-comm! -nargs=? -bang AV call AlternateFile("v<bang>", <f-args>)
-comm! -nargs=? -bang AT call AlternateFile("t<bang>", <f-args>)
-comm! -nargs=? -bang AN call NextAlternate("<bang>")
+comm! -nargs=? -bang A silent! call AlternateFile("n<bang>", <f-args>)
+comm! -nargs=? -bang AS silent! call AlternateFile("h<bang>", <f-args>)
+comm! -nargs=? -bang AV silent! call AlternateFile("v<bang>", <f-args>)
+comm! -nargs=? -bang AT silent! call AlternateFile("t<bang>", <f-args>)
+comm! -nargs=? -bang AN silent! call NextAlternate("<bang>")
 
 " Function : BufferOrFileExists (PRIVATE)
 " Purpose  : determines if a buffer or a readable file exists
