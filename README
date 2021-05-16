@@ -1,4 +1,8 @@
-This is a mirror of http://www.vim.org/scripts/script.php?script_id=31
+It forks from a.vim, but fix bug when the files in pairs in different folder.
+It can works well even the folds at far different level when config with a var named 'g:selfConfigPartPath'.
+eg set this in your vim config file:
+let g:selfConfigPartPath='export:h:src' 
+The 'export','src' etc. is the last level folder of the file.
 
 A few of quick commands to swtich between source files and header files quickly.
 
