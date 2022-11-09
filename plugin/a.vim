@@ -616,10 +616,10 @@ comm! -nargs=? -bang IHT call AlternateOpenFileUnderCursor("t<bang>", <f-args>)
 comm! -nargs=? -bang IHN call AlternateOpenNextFile("<bang>")
 imap <Leader>ih <ESC>:IHS<CR>
 nmap <Leader>ih :IHS<CR>
-imap <Leader>is <ESC>:IHS<CR>:A<CR>
-nmap <Leader>is :IHS<CR>:A<CR>
 imap <Leader>ihn <ESC>:IHN<CR>
 nmap <Leader>ihn :IHN<CR>
+" imap <Leader>is <ESC>:IHS<CR>:A<CR>
+" nmap <Leader>is :IHS<CR>:A<CR>
 
 "function! <SID>PrintList(theList)
 "   let n = 1
